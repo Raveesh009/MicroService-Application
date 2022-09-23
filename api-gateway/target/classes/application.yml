@@ -1,0 +1,36 @@
+server:
+  port: 9191
+
+#It is done for routing, lb is load balance,users is used bcoz we have this in our url and **
+# are wildcard connectors that means if anything starts with users it route it to user-service
+
+spring:
+  application:
+    name: API-GATEWAY
+  cloud:
+    gateway:
+      routes:
+        - id: USER-SERVICE
+          uri: lb://USER-SERVICE
+          predicates:
+             - Path=/users/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                 name: USER-SERVICE
+                 fallbackuri: forward:/userServiceFallBack
+        - id: DEPARTMENT-SERVICE
+          uri: lb://DEPARTMENT-SERVICE
+          predicates:
+            - Path=/departments/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: DEPARTMENT-SERVICE
+                fallbackuri: forward:/departmentServiceFallBack
+
+#If microservices take more than 4 second than it will forward to fallBackMethod.
+
+
+
+
